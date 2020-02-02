@@ -254,6 +254,25 @@ def draw_info_fields(dwg, rows, y, denom):
 
     dwg.add(group)
 
+def draw_current_marker(dwg, rows, y, denom):
+    f = "draw_current_marker()"
+    debug(f)
+
+    # Everything goes into a group
+    group = dwg.g(id="current_marker", stroke="black")
+
+    # Percent of graph
+    current_percent = 100 * rows["current_pos_dec"] / denom
+
+    # Draw triangle
+    point_1 = ("%2.2f%%" % (current_percent), y)
+    point_2 = ("%2.2f%%" % (current_percent + .3), y + 10)
+    point_3 = ("%2.2f%%" % (current_percent - .3), y + 10)
+    group.add(dwg.line(start=point_1, end=point_2))
+    group.add(dwg.line(start=point_2, end=point_3))
+    group.add(dwg.line(start=point_3, end=point_1))
+    dwg.add(group)
+
 def main():
     f = "main()"
     debug(f)
@@ -285,7 +304,10 @@ def main():
     y = 10
 
     draw_slice_graph(dwg=dwg, rows=rows, y=y, denom=denom)
-    y += GRAPH_HEIGHT + 10
+    y += GRAPH_HEIGHT
+
+    draw_current_marker(dwg=dwg, rows=rows, y=y, denom=denom)
+    y += 20
 
     draw_total_graph(dwg=dwg, rows=rows, y=y, denom=denom)
     y += GRAPH_HEIGHT + 10
