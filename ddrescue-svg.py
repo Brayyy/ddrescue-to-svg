@@ -143,8 +143,8 @@ def draw_slice_graph(dwg, rows, y, denom):
     f = "draw_slice_graph()"
     debug(f)
 
-    # The whole graph goes into a group
-    group = dwg.g(id="slice_graph")
+    # Everything goes into a group
+    group = dwg.g(id="slice_graph", font_size=14)
 
     # Start on the left
     xp = 0
@@ -199,7 +199,7 @@ def draw_total_graph(dwg, rows, y, denom):
     debug(f)
 
     # Everything goes into a group
-    group = dwg.g(id="total_graph")
+    group = dwg.g(id="total_graph", font_size=14)
 
     # Start on the left
     xp = 0
