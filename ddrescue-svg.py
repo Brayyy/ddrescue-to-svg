@@ -60,9 +60,13 @@ JAVASCRIPT = """
         return val;
     }
 
-    function s(num, pos, size, status) {
-        infoBox1.nodeValue = 'Position: ' + commaSeparateNumber(pos) + " (" + bytesToSize(pos) + ") #" + num;
+    function s(num) {
+        pos = mapFileData[num][0];
+        size = mapFileData[num][1];
+        status = mapFileData[num][2];
         end = pos + size - 1;
+
+        infoBox1.nodeValue = 'Position: ' + commaSeparateNumber(pos) + " (" + bytesToSize(pos) + ") #" + num;
         infoBox2.nodeValue = 'Ending: ' + commaSeparateNumber(end) + " (" + bytesToSize(end) + ")";
         infoBox3.nodeValue = 'Size: ' + commaSeparateNumber(size) + " (" + bytesToSize(size) + ")";
         infoBox4.nodeValue = 'Status: ' + status_map[status];
@@ -77,6 +81,7 @@ JAVASCRIPT = """
 """
 
 GRAPH_HEIGHT = 80
+PRETTY = False
 
 def parse_file(filename):
     f = "parse_file()"
@@ -138,7 +143,19 @@ def parse_file(filename):
     debug(f, ret["totals"])
     return ret
 
-# Slice graph
+def make_js_data(rows):
+    f = "make_js_data()"
+    debug(f)
+    ret = []
+
+    for row in rows["slices"]:
+        ret.append([
+            row["pos_dec"],
+            row["size_dec"],
+            row["status"],
+        ])
+    return ret
+
 def draw_slice_graph(dwg, rows, y, denom):
     f = "draw_slice_graph()"
     debug(f)
@@ -155,40 +172,39 @@ def draw_slice_graph(dwg, rows, y, denom):
     for row in rows["slices"]:
         # debug(f, row)
 
-        # TEMPORARY
-        # if i > 100:
-        #     continue
-
-        # JavaScript mouse events
-        mouseover = "s(%s, %s, %s, '%s')" % (i, row["pos_dec"], row["size_dec"], row["status"])
-        g = dwg.g(
-            onmouseover=mouseover,
-            # onmouseout="c()"
-        )
-
         # Graph block starting and width percentages
         xp = 100 * row["pos_dec"] / denom
         wp = 100 * row["size_dec"] / denom
-        g.add(dwg.rect(
-            insert=("%s%%" % xp, y),
-            size=("%s%%" % wp, GRAPH_HEIGHT),
-            fill=fill_map[row["status"]],
-        ))
 
-        # If wider than X%, also add a text label
-        if wp > 2:
-            # Just fudge the x percent for text
-            xpt = "%s%%" % (0.2 + xp)
-            text_val = "%2.2f%%" % wp
-            g.add(dwg.text(text_val, (xpt, y + 15)))
-            text_val = size(int(row["pos_dec"]))
-            g.add(dwg.text(text_val, (xpt, y + 35)))
-            text_val = size(int(row["size_dec"]))
-            g.add(dwg.text(text_val, (xpt, y + 55)))
+        # Only render percent is above 0.01% threshold
+        if wp >= 0.01:
+            # JavaScript mouse events
+            g = dwg.g(
+                onmouseover="s(%s)" % (i),
+                # onmouseout="c()"
+            )
+            # Graph rectangle
+            g.add(dwg.rect(
+                insert=("%2.4f%%" % xp, y),
+                size=("%2.4f%%" % wp, GRAPH_HEIGHT),
+                fill=fill_map[row["status"]],
+            ))
 
-        # Add the group
-        group.add(g)
-        debug(xp, y, wp, GRAPH_HEIGHT)
+            # If wider than X%, also add a text label
+            if wp > 2:
+                # Just fudge the x percent for text
+                xpt = "%s%%" % (0.2 + xp)
+                text_val = "%2.2f%%" % wp
+                g.add(dwg.text(text_val, (xpt, y + 15)))
+                text_val = size(int(row["pos_dec"]))
+                g.add(dwg.text(text_val, (xpt, y + 35)))
+                text_val = size(int(row["size_dec"]))
+                g.add(dwg.text(text_val, (xpt, y + 55)))
+
+            # Add the group
+            group.add(g)
+            debug(xp, y, wp, GRAPH_HEIGHT)
+
         xp += wp
         i += 1
 
@@ -290,10 +306,15 @@ def main():
         onload="init()"
     )
 
-    # Add CSS and JS data to SVG
-    MAPDATA_JS = "var logData=%s" % json.dumps(rows["log"], indent = 2)
+    # Add CSS and JS code to SVG
     dwg.defs.add(dwg.style(content=CSS_STYLES))
     dwg.defs.add(dwg.script(content=JAVASCRIPT))
+    # Add JS data to SVG
+    log_data_for_js = make_js_data(rows)
+    if PRETTY:
+        MAPDATA_JS = "var mapFileData=%s" % json.dumps(log_data_for_js, indent = 2)
+    else:
+        MAPDATA_JS = "var mapFileData=%s" % json.dumps(log_data_for_js)
     dwg.defs.add(dwg.script(content=MAPDATA_JS))
 
     # Get max value for use in percentage denominator
@@ -314,7 +335,7 @@ def main():
 
     draw_info_fields(dwg=dwg, rows=rows, y=y, denom=denom)
 
-    dwg.save(pretty=True)
+    dwg.save(pretty=PRETTY)
 
 
 if __name__ == "__main__":
