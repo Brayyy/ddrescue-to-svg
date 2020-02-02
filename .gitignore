@@ -1,0 +1,12 @@
+# General note stuff
+*notes*
+*todo*
+# Map files
+*.txt
+*.map
+*.log
+# Bin dumps
+*.bin
+*.iso
+# Output
+*.svg
