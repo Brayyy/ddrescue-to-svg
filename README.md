@@ -13,3 +13,7 @@ Being able to pause/resume/skip around in the recovery process is incredibly pow
 ```
 python3 ddrescue-svg.py my-map-file.txt [optional-output-filename.svg]
 ```
+
+### Example output:
+
+![screenshot](screenshot.png)
