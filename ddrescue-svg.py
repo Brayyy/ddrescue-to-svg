@@ -82,6 +82,7 @@ JAVASCRIPT = """
 
 GRAPH_HEIGHT = 80
 PRETTY = False
+RENDER_THRESHOLD = 0.0002
 
 def parse_file(filename):
     f = "parse_file()"
@@ -176,8 +177,8 @@ def draw_slice_graph(dwg, rows, y, denom):
         xp = 100 * row["pos_dec"] / denom
         wp = 100 * row["size_dec"] / denom
 
-        # Only render percent is above 0.01% threshold
-        if wp >= 0.01:
+        # Only render percent is above threshold
+        if wp >= RENDER_THRESHOLD:
             # JavaScript mouse events
             g = dwg.g(
                 onmouseover="s(%s)" % (i),
