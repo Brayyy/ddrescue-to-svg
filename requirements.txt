@@ -1,0 +1,3 @@
+pydebug
+svgwrite
+hurry.filesize
