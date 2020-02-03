@@ -17,3 +17,10 @@ python3 ddrescue-svg.py my-map-file.txt [optional-output-filename.svg]
 ### Example output:
 
 ![screenshot](screenshot.png)
+
+### Output SVG explanation:
+
+- The first graph is your volume, first to last byte. A rectangle is drawn every time there is a state change, and large slices are labeled with additional information, being percentage of total volume, the start point and the size of the slice. If the mouse is hovered over this graph, all information about that slice is displayed at the bottom.
+- A small triangle/arrow appears below the first graph, this is the current location where ddrescue is working.
+- The second graph is a sum of all states in the mapfile.
+- The information at the bottom appears and changes as you mouse-over the first graph.
