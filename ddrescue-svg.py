@@ -299,10 +299,15 @@ def main():
         print("Usage: %s map-file.txt" % sys.argv[0])
         sys.exit(1)
 
+    # Read optional output filename
+    output_file = "test.svg"
+    if len(sys.argv) >= 3:
+        output_file = sys.argv[2]
+
     rows = parse_file(sys.argv[1])
 
     dwg = svgwrite.Drawing(
-        'test.svg',
+        output_file,
         profile='full',
         onload="init()"
     )
